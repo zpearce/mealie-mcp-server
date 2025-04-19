@@ -75,3 +75,21 @@ class RecipeMixin:
 
         logger.info(f"Retrieving recipe with slug: {slug}")
         return self._handle_request("GET", f"/api/recipes/{slug}")
+
+    def update_recipe(self, slug: str, recipe_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update a specific recipe by its slug
+
+        Args:
+            slug: The slug identifier of the recipe to update
+            recipe_data: Dictionary containing the recipe properties to update
+
+        Returns:
+            JSON response containing the updated recipe details
+        """
+        if not slug:
+            raise ValueError("Recipe slug cannot be empty")
+        if not recipe_data:
+            raise ValueError("Recipe data cannot be empty")
+
+        logger.info(f"Updating recipe with slug: {slug}")
+        return self._handle_request("PUT", f"/api/recipes/{slug}", json=recipe_data)
