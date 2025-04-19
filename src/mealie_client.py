@@ -141,3 +141,104 @@ class MealieClient:
             return response.json()
         else:
             raise Exception(f"Error: {response.status_code} - {response.text}")
+
+    def create_shopping_list(
+        self, name: str, description: Optional[str] = None
+    ) -> Dict[str, Any]:
+        """Create a new shopping list
+
+        Args:
+            name: The name of the shopping list
+            description: Optional description for the shopping list
+
+        Returns:
+            JSON response containing the created shopping list details
+        """
+        payload = {"name": name}
+
+        if description is not None:
+            payload["description"] = description
+
+        response = self._client.post("/api/households/shopping/lists", json=payload)
+        if response.status_code == 201:
+            return response.json()
+        else:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+    def update_shopping_list(
+        self,
+        list_id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Update an existing shopping list
+
+        Args:
+            list_id: The ID of the shopping list to update
+            name: New name for the shopping list
+            description: New description for the shopping list
+
+        Returns:
+            JSON response containing the updated shopping list details
+        """
+        payload = {"id": list_id}
+
+        if name is not None:
+            payload["name"] = name
+
+        if description is not None:
+            payload["description"] = description
+
+        response = self._client.put(
+            f"/api/households/shopping/lists/{list_id}", json=payload
+        )
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+    def get_shopping_lists(
+        self,
+        page: Optional[int] = None,
+        per_page: Optional[int] = None,
+        pagination_seed: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Retrieve all shopping lists
+
+        Args:
+            page: Page number to retrieve
+            per_page: Number of items per page
+            pagination_seed: Seed for consistent pagination
+
+        Returns:
+            JSON response containing shopping list items and pagination information
+        """
+        params = {}
+
+        if page is not None:
+            params["page"] = page
+        if per_page is not None:
+            params["perPage"] = per_page
+        if pagination_seed is not None:
+            params["paginationSeed"] = pagination_seed
+
+        response = self._client.get("/api/households/shopping/lists", params=params)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
+
+    def get_shopping_list(self, list_id: str) -> Dict[str, Any]:
+        """Retrieve a specific shopping list by ID
+
+        Args:
+            list_id: The ID of the shopping list to retrieve
+
+        Returns:
+            JSON response containing the shopping list details
+        """
+        response = self._client.get(f"/api/households/shopping/lists/{list_id}")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(f"Error: {response.status_code} - {response.text}")
