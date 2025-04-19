@@ -1,4 +1,7 @@
+import json
+import logging
 import os
+import traceback
 from typing import List, Optional
 
 from dotenv import load_dotenv
@@ -6,16 +9,47 @@ from fastmcp import FastMCP
 
 from mealie_client import MealieClient
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    handlers=[logging.StreamHandler(), logging.FileHandler("mealie_mcp_server.log")],
+)
+logger = logging.getLogger("mealie-mcp")
+
 mcp = FastMCP("mealie")
 
+# Environment variable handling with validation
 load_dotenv()
 MEALIE_BASE_URL = os.getenv("MEALIE_BASE_URL")
 MEALIE_API_KEY = os.getenv("MEALIE_API_KEY")
 
-mealie = MealieClient(
-    base_url=MEALIE_BASE_URL,
-    api_key=MEALIE_API_KEY,
-)
+if not MEALIE_BASE_URL:
+    logger.error("MEALIE_BASE_URL environment variable is not set")
+    raise ValueError("MEALIE_BASE_URL environment variable is required")
+
+if not MEALIE_API_KEY:
+    logger.error("MEALIE_API_KEY environment variable is not set")
+    raise ValueError("MEALIE_API_KEY environment variable is required")
+
+
+# Error response helper function
+def format_error_response(error_message: str) -> str:
+    """Format error responses consistently as JSON strings."""
+    error_response = {"success": False, "error": error_message}
+    return json.dumps(error_response)
+
+
+try:
+    logger.info(f"Initializing Mealie client with base URL: {MEALIE_BASE_URL}")
+    mealie = MealieClient(
+        base_url=MEALIE_BASE_URL,
+        api_key=MEALIE_API_KEY,
+    )
+except Exception as e:
+    logger.error(f"Failed to initialize Mealie client: {str(e)}")
+    logger.debug(traceback.format_exc())
+    raise
 
 
 @mcp.tool()
@@ -28,7 +62,14 @@ def get_foods() -> str:
     Returns:
         str: Food items with their details including ID, name, and associated aliases.
     """
-    return mealie.get_foods()
+    try:
+        logger.info("Fetching list of foods from Mealie")
+        return mealie.get_foods()
+    except Exception as e:
+        error_msg = f"Error fetching foods: {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -51,13 +92,22 @@ def get_recipes(
     Returns:
         str: Recipe summaries with details like ID, name, description, and image information.
     """
-    return mealie.get_recipes(
-        search=search,
-        page=page,
-        per_page=per_page,
-        categories=categories,
-        tags=tags,
-    )
+    try:
+        logger.info(
+            f"Fetching recipes with search: '{search}', page: {page}, per_page: {per_page}, categories: {categories}, tags: {tags}"
+        )
+        return mealie.get_recipes(
+            search=search,
+            page=page,
+            per_page=per_page,
+            categories=categories,
+            tags=tags,
+        )
+    except Exception as e:
+        error_msg = f"Error fetching recipes: {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -72,7 +122,14 @@ def get_recipe(slug: str) -> str:
         str: Comprehensive recipe details including ingredients, instructions,
              nutrition information, notes, and associated metadata.
     """
-    return mealie.get_recipe(slug)
+    try:
+        logger.info(f"Fetching recipe with slug: {slug}")
+        return mealie.get_recipe(slug)
+    except Exception as e:
+        error_msg = f"Error fetching recipe with slug '{slug}': {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -88,7 +145,14 @@ def create_shopping_list(name: str, description: Optional[str] = None) -> str:
         str: The created shopping list details including its ID, which you'll need for
             subsequent operations.
     """
-    return mealie.create_shopping_list(name=name, description=description)
+    try:
+        logger.info(f"Creating shopping list '{name}' with description: {description}")
+        return mealie.create_shopping_list(name=name, description=description)
+    except Exception as e:
+        error_msg = f"Error creating shopping list '{name}': {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -109,9 +173,18 @@ def update_shopping_list(
     Returns:
         str: The updated shopping list details reflecting all changes made.
     """
-    return mealie.update_shopping_list(
-        list_id=list_id, name=name, description=description
-    )
+    try:
+        logger.info(
+            f"Updating shopping list {list_id} with name: {name}, description: {description}"
+        )
+        return mealie.update_shopping_list(
+            list_id=list_id, name=name, description=description
+        )
+    except Exception as e:
+        error_msg = f"Error updating shopping list '{list_id}': {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -128,7 +201,14 @@ def get_shopping_lists(
         str: Array of shopping list objects with their details (ID, name, description, etc.)
              and pagination information.
     """
-    return mealie.get_shopping_lists(page=page, per_page=per_page)
+    try:
+        logger.info(f"Fetching shopping lists with page: {page}, per_page: {per_page}")
+        return mealie.get_shopping_lists(page=page, per_page=per_page)
+    except Exception as e:
+        error_msg = f"Error fetching shopping lists: {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 @mcp.tool()
@@ -144,8 +224,21 @@ def get_shopping_list(list_id: str) -> str:
              creation date), shopping list items with quantities and checked status,
              any associated recipe references, and label settings.
     """
-    return mealie.get_shopping_list(list_id)
+    try:
+        logger.info(f"Fetching shopping list with ID: {list_id}")
+        return mealie.get_shopping_list(list_id)
+    except Exception as e:
+        error_msg = f"Error fetching shopping list '{list_id}': {str(e)}"
+        logger.error(error_msg)
+        logger.debug(traceback.format_exc())
+        return format_error_response(error_msg)
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
+    try:
+        logger.info("Starting Mealie MCP Server")
+        mcp.run(transport="stdio")
+    except Exception as e:
+        logger.critical(f"Fatal error in Mealie MCP Server: {str(e)}")
+        logger.debug(traceback.format_exc())
+        raise
