@@ -4,7 +4,7 @@ from typing import Any, Dict, Optional
 
 from fastmcp import FastMCP
 
-from errors import format_error_response
+from utils import format_error_response
 from mealie import MealieFetcher
 
 logger = logging.getLogger("mealie-mcp")

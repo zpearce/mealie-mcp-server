@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from mealie.client import MealieClient
-from param_builder import ParamBuilder
+from utils import format_api_params
 
 logger = logging.getLogger("mealie-mcp")
 
@@ -29,19 +29,17 @@ class MealplanMixin(MealieClient):
         Returns:
             Dict containing meal plans and pagination information
         """
-        params = ParamBuilder()
-        if start_date is not None:
-            params.add("start_date", start_date)
-        if end_date is not None:
-            params.add("end_date", end_date)
-        if page is not None:
-            params.add("page", page)
-        if per_page is not None:
-            params.add("per_page", per_page)
+        param_dict = {
+            "start_date": start_date,
+            "end_date": end_date,
+            "page": page,
+            "per_page": per_page,
+        }
 
-        return self._handle_request(
-            "GET", "/api/households/mealplans", params=params.build()
-        )
+        params = format_api_params(param_dict)
+
+        logger.info(f"Retrieving meal plans with parameters: {params}")
+        return self._handle_request("GET", "/api/households/mealplans", params=params)
 
     def get_mealplan(self, item_id: int) -> Dict[str, Any]:
         """
@@ -53,9 +51,7 @@ class MealplanMixin(MealieClient):
         Returns:
             Dict containing meal plan entry details
         """
-        return self._handle_request(
-            "GET", f"/api/households/mealplans/{item_id}"
-        )
+        return self._handle_request("GET", f"/api/households/mealplans/{item_id}")
 
     def create_mealplan(self, mealplan_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -66,7 +62,7 @@ class MealplanMixin(MealieClient):
                 - date: Required. ISO format date string (YYYY-MM-DD)
                 - entryType: Optional. One of 'breakfast', 'lunch', 'dinner', 'side'
                 - title: Optional. Title for the meal
-                - text: Optional. Text description 
+                - text: Optional. Text description
                 - recipeId: Optional. UUID of a recipe if this entry is linked to a recipe
 
         Returns:
@@ -133,14 +129,16 @@ class MealplanMixin(MealieClient):
         Returns:
             Dict containing meal plan rules and pagination information
         """
-        params = ParamBuilder()
-        if page is not None:
-            params.add("page", page)
-        if per_page is not None:
-            params.add("per_page", per_page)
+        param_dict = {
+            "page": page,
+            "per_page": per_page,
+        }
 
+        params = format_api_params(param_dict)
+
+        logger.info(f"Retrieving meal plan rules with parameters: {params}")
         return self._handle_request(
-            "GET", "/api/households/mealplans/rules", params=params.build()
+            "GET", "/api/households/mealplans/rules", params=params
         )
 
     def get_mealplan_rule(self, rule_id: str) -> Dict[str, Any]:
@@ -153,9 +151,7 @@ class MealplanMixin(MealieClient):
         Returns:
             Dict containing meal plan rule details
         """
-        return self._handle_request(
-            "GET", f"/api/households/mealplans/rules/{rule_id}"
-        )
+        return self._handle_request("GET", f"/api/households/mealplans/rules/{rule_id}")
 
     def create_mealplan_rule(self, rule_data: Dict[str, Any]) -> Dict[str, Any]:
         """

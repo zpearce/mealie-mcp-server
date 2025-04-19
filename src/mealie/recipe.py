@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from param_builder import ParamBuilder
+from utils import format_api_params
 
 logger = logging.getLogger("mealie-mcp")
 
@@ -56,7 +56,7 @@ class RecipeMixin:
             "tools": tools,
         }
 
-        params = ParamBuilder(param_dict).build()
+        params = format_api_params(param_dict)
 
         logger.info(f"Retrieving recipes with parameters: {params}")
         return self._handle_request("GET", "/api/recipes", params=params)

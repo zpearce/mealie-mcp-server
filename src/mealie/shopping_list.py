@@ -1,7 +1,7 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from param_builder import ParamBuilder
+from utils import format_api_params
 
 logger = logging.getLogger("mealie-mcp")
 
@@ -92,7 +92,7 @@ class ShoppingListMixin:
             "paginationSeed": pagination_seed,
         }
 
-        params = ParamBuilder(param_dict).build()
+        params = format_api_params(param_dict)
 
         logger.info(f"Retrieving shopping lists with parameters: {params}")
         return self._handle_request(
@@ -367,7 +367,7 @@ class ShoppingListMixin:
             "queryFilter": query_filter,
         }
 
-        params = ParamBuilder(param_dict).build()
+        params = format_api_params(param_dict)
 
         logger.info(f"Retrieving all shopping list items with parameters: {params}")
         return self._handle_request("GET", "/api/shopping/items", params=params)

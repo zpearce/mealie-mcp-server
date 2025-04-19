@@ -2,7 +2,7 @@ import logging
 from typing import Any, Dict, Optional
 
 from mealie.client import MealieClient
-from param_builder import ParamBuilder
+from utils import format_api_params
 
 logger = logging.getLogger("mealie-mcp")
 
@@ -47,7 +47,7 @@ class FoodMixin(MealieClient):
             "perPage": per_page,
         }
 
-        params = ParamBuilder(param_dict).build()
+        params = format_api_params(param_dict)
 
         logger.info(f"Retrieving foods with parameters: {params}")
         return self._handle_request("GET", "/api/foods", params=params)
