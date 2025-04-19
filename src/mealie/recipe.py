@@ -93,3 +93,15 @@ class RecipeMixin:
 
         logger.info(f"Updating recipe with slug: {slug}")
         return self._handle_request("PUT", f"/api/recipes/{slug}", json=recipe_data)
+
+    def create_recipe(self, name: str) -> Dict[str, Any]:
+        """Create a new recipe
+
+        Args:
+            name: The name of the new recipe
+
+        Returns:
+            JSON response containing the created recipe details
+        """
+        logger.info("Creating new recipe")
+        return self._handle_request("POST", "/api/recipes", json={"name": name})

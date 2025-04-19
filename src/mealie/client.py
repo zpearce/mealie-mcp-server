@@ -1,3 +1,4 @@
+import json
 import logging
 import traceback
 from typing import Any, Dict
@@ -73,14 +74,13 @@ class MealieClient:
 
             # Try to parse error details from response
             try:
-                error_json = e.response.json()
-                if isinstance(error_json, dict) and "detail" in error_json:
-                    error_detail = error_json["detail"]
+                error_detail = e.response.json()
             except Exception:
                 error_detail = e.response.text
 
             error_msg = f"API error for {method} {url}: {error_detail}"
             logger.error(error_msg)
+            logger.debug(f"Failed Request body: {e.request.content}")
             raise MealieApiError(status_code, error_msg, e.response.text) from e
 
         except ReadTimeout:
@@ -94,6 +94,11 @@ class MealieClient:
             logger.error(error_msg)
             logger.debug(traceback.format_exc())
             raise ConnectionError(error_msg) from e
+
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to parse response as JSON: {str(e)}")
+            logger.debug(f"Non-JSON response text: {e.response.text}")
+            return {"raw_response": response.text}
 
         except Exception as e:
             error_msg = f"Unexpected error for {method} {url}: {str(e)}"
