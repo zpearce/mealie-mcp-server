@@ -1,14 +1,26 @@
 # Mealie MCP Server
 
-This project enables AI assistants to interact with your Mealie recipe database through MCP client such as Claude Desktop.
+This project enables AI assistants to interact with your [Mealie](https://github.com/mealie-recipes/mealie) recipe database through MCP client such as Claude Desktop.
 
 ## Prerequisites
 
 - Python 3.12+
-- Running [Mealie](https://mealie.io/) instance with API key
+- Running Mealie instance with API key
 - Package manager [uv](https://docs.astral.sh/uv/getting-started/installation/)
 
 ## Usage with Claude Desktop
+
+### Option 1: Using fastmcp (Recommended)
+
+Install the server directly with the `fastmcp` command:
+
+```bash
+fastmcp install src/server.py \
+  --env-var MEALIE_BASE_URL=https://your-mealie-instance.com \
+  --env-var MEALIE_API_KEY=your-mealie-api-key
+```
+
+### Option 2: Manual Configuration
 
 Add the server to your `claude_desktop_config.json`
 
