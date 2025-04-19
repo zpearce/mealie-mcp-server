@@ -22,8 +22,11 @@ class RecipeIngredient(BaseModel):
     unit: Optional[str] = None
     food: Optional[str] = None
     note: str
-    isFood: bool = False
-    disableAmount: bool = True
+    isFood: bool = True  # Changed from False to True
+    disableAmount: bool = False  # Changed from True to False
+    display: Optional[str] = None
+    title: Optional[str] = None
+    originalText: Optional[str] = None
     referenceId: Optional[str] = None
 
 
@@ -32,6 +35,7 @@ class RecipeInstruction(BaseModel):
     title: str = ""
     summary: str = ""
     text: str
+    ingredientReferences: List[str] = Field(default_factory=list)
 
 
 class RecipeSettings(BaseModel):
@@ -45,7 +49,13 @@ class RecipeSettings(BaseModel):
 
 
 class RecipeData(BaseModel):
+    id: Optional[str] = None
+    userId: Optional[str] = None
+    householdId: Optional[str] = None
+    groupId: Optional[str] = None
     name: Optional[str] = None
+    slug: Optional[str] = None
+    image: Optional[str] = None
     description: Optional[str] = None
     recipeServings: Optional[float] = None
     recipeYieldQuantity: Optional[float] = None
@@ -54,14 +64,23 @@ class RecipeData(BaseModel):
     prepTime: Optional[str] = None
     cookTime: Optional[str] = None
     performTime: Optional[str] = None
-    recipeCategory: Optional[List[str]] = Field(default_factory=list)
-    tags: Optional[List[str]] = Field(default_factory=list)
-    tools: Optional[List[str]] = Field(default_factory=list)
+    recipeCategory: List[str] = Field(default_factory=list)
+    tags: List[str] = Field(default_factory=list)
+    tools: List[str] = Field(default_factory=list)
     rating: Optional[int] = None
     orgURL: Optional[str] = None
+    dateAdded: Optional[str] = None
+    dateUpdated: Optional[str] = None
+    createdAt: Optional[str] = None
+    updatedAt: Optional[str] = None
+    lastMade: Optional[str] = None
     nutrition: Optional[RecipeNutrition] = None
-    recipeIngredient: Optional[List[RecipeIngredient]] = None
-    recipeInstructions: Optional[List[RecipeInstruction]] = None
+    recipeIngredient: List[RecipeIngredient] = Field(default_factory=list)
+    recipeInstructions: List[RecipeInstruction] = Field(default_factory=list)
     settings: Optional[RecipeSettings] = None
+    assets: List = Field(default_factory=list)
+    notes: List = Field(default_factory=list)
+    extras: dict = Field(default_factory=dict)
+    comments: List = Field(default_factory=list)
 
     model_config = ConfigDict(extra="allow")  # Allow extra fields

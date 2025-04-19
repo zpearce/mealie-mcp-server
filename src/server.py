@@ -38,17 +38,21 @@ try:
         api_key=MEALIE_API_KEY,
     )
 except Exception as e:
-    logger.error(f"Failed to initialize Mealie client: {str(e)}")
-    logger.debug(traceback.format_exc())
+    logger.error({"message": "Failed to initialize Mealie client", "error": str(e)})
+    logger.debug({"message": "Error traceback", "traceback": traceback.format_exc()})
     raise
 
 register_all_tools(mcp, mealie)
 
 if __name__ == "__main__":
     try:
-        logger.info("Starting Mealie MCP Server")
+        logger.info({"message": "Starting Mealie MCP Server"})
         mcp.run(transport="stdio")
     except Exception as e:
-        logger.critical(f"Fatal error in Mealie MCP Server: {str(e)}")
-        logger.debug(traceback.format_exc())
+        logger.critical(
+            {"message": "Fatal error in Mealie MCP Server", "error": str(e)}
+        )
+        logger.debug(
+            {"message": "Error traceback", "traceback": traceback.format_exc()}
+        )
         raise

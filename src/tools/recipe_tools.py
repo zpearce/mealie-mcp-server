@@ -36,7 +36,14 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         """
         try:
             logger.info(
-                f"Fetching recipes with search: '{search}', page: {page}, per_page: {per_page}, categories: {categories}, tags: {tags}"
+                {
+                    "message": "Fetching recipes",
+                    "search": search,
+                    "page": page,
+                    "per_page": per_page,
+                    "categories": categories,
+                    "tags": tags,
+                }
             )
             return mealie.get_recipes(
                 search=search,
@@ -47,8 +54,10 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             )
         except Exception as e:
             error_msg = f"Error fetching recipes: {str(e)}"
-            logger.error(error_msg)
-            logger.debug(traceback.format_exc())
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
             return format_error_response(error_msg)
 
     @mcp.tool()
@@ -64,12 +73,14 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 nutrition information, notes, and associated metadata.
         """
         try:
-            logger.info(f"Fetching recipe with slug: {slug}")
+            logger.info({"message": "Fetching recipe", "slug": slug})
             return mealie.get_recipe(slug)
         except Exception as e:
             error_msg = f"Error fetching recipe with slug '{slug}': {str(e)}"
-            logger.error(error_msg)
-            logger.debug(traceback.format_exc())
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
             return format_error_response(error_msg)
 
     @mcp.tool()
@@ -87,7 +98,7 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
 
         Important Notes:
             - For best results, omit fields you don't want to change rather than providing empty values
-            - For recipe ingredients, the default values are isFood=False and disableAmount=True
+            - For recipe ingredients, the default values are isFood=True and disableAmount=False
             - When providing empty lists (like tags or categories), use [] instead of null/None
             - Use string values for times (e.g., "15 minutes" instead of numeric values)
             - Put ingredient details (quantity, unit, food) into the note field for simplicity
@@ -158,28 +169,38 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             ```
         """
         try:
-            logger.info(f"Updating recipe with slug: {slug}")
+            logger.info({"message": "Updating recipe", "slug": slug})
 
-            # Use Pydantic model for validation and transformation
+            # Use Pydantic model for validation
             try:
                 # Parse the recipe data through our Pydantic model
                 validated_data = RecipeData(**recipe_data)
-                # Convert back to dict for the API call - using model_dump instead of dict
+                # Convert back to dict for the API call
                 recipe_data_dict = validated_data.model_dump(exclude_none=True)
-                logger.debug(f"Validated recipe data: {recipe_data_dict}")
+                logger.debug(
+                    {"message": "Validated recipe data", "data": recipe_data_dict}
+                )
 
                 # Make the API call with the validated data
                 return mealie.update_recipe(slug=slug, recipe_data=recipe_data_dict)
             except Exception as validation_error:
                 # Log the validation error details
-                logger.error(f"Data validation error: {str(validation_error)}")
-                logger.debug(f"Original data that failed validation: {recipe_data}")
+                logger.error(
+                    {"message": "Data validation error", "error": str(validation_error)}
+                )
+                logger.debug(
+                    {
+                        "message": "Original data that failed validation",
+                        "data": recipe_data,
+                    }
+                )
                 raise ValueError(f"Invalid recipe data format: {str(validation_error)}")
-
         except Exception as e:
             error_msg = f"Error updating recipe with slug '{slug}': {str(e)}"
-            logger.error(error_msg)
-            logger.debug(traceback.format_exc())
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
             return format_error_response(error_msg)
 
     @mcp.tool()
@@ -200,11 +221,10 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
 
         Important Notes:
             - For best results, omit fields you don't want to set rather than providing empty values
-            - For recipe ingredients, the default values are isFood=False and disableAmount=True
+            - For recipe ingredients, the default values are isFood=True and disableAmount=False
             - When providing empty lists (like tags or categories), use [] instead of null/None
             - Use string values for times (e.g., "15 minutes" instead of numeric values)
             - Put ingredient details (quantity, unit, food) into the note field for simplicity
-            - Examples below are truncated for readability; a full recipe may have many more ingredients and instructions
 
         Example of creating a recipe with just a name:
             ```json
@@ -291,19 +311,19 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             ```
         """
         try:
-            logger.info(f"Creating new recipe with name: {name}")
+            logger.info({"message": "Creating new recipe", "name": name})
             # First create the basic recipe
             create_result = mealie.create_recipe(name=name)
 
             # If we have additional recipe data, update the recipe with those details
             if recipe_data:
-                slug = create_result.get("slug")
+                slug = create_result
                 if not slug:
                     return format_error_response(
                         "Failed to get slug from created recipe"
                     )
 
-                logger.info(f"Updating newly created recipe with slug: {slug}")
+                logger.info({"message": "Updating newly created recipe", "slug": slug})
 
                 # Use Pydantic model for validation
                 try:
@@ -311,14 +331,26 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                     validated_data = RecipeData(**recipe_data)
                     # Convert back to dict for the API call - using model_dump instead of dict
                     recipe_data_dict = validated_data.model_dump(exclude_none=True)
-                    logger.debug(f"Validated recipe data: {recipe_data_dict}")
+                    logger.debug(
+                        {"message": "Validated recipe data", "data": recipe_data_dict}
+                    )
 
                     # Make the API call with the validated data
                     return mealie.update_recipe(slug=slug, recipe_data=recipe_data_dict)
                 except Exception as validation_error:
                     # Log the validation error details
-                    logger.error(f"Data validation error: {str(validation_error)}")
-                    logger.debug(f"Original data that failed validation: {recipe_data}")
+                    logger.error(
+                        {
+                            "message": "Data validation error",
+                            "error": str(validation_error),
+                        }
+                    )
+                    logger.debug(
+                        {
+                            "message": "Original data that failed validation",
+                            "data": recipe_data,
+                        }
+                    )
                     raise ValueError(
                         f"Invalid recipe data format: {str(validation_error)}"
                     )
@@ -327,6 +359,8 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
 
         except Exception as e:
             error_msg = f"Error creating recipe with name '{name}': {str(e)}"
-            logger.error(error_msg)
-            logger.debug(traceback.format_exc())
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
             return format_error_response(error_msg)

@@ -58,7 +58,7 @@ class RecipeMixin:
 
         params = format_api_params(param_dict)
 
-        logger.info(f"Retrieving recipes with parameters: {params}")
+        logger.info({"message": "Retrieving recipes", "parameters": params})
         return self._handle_request("GET", "/api/recipes", params=params)
 
     def get_recipe(self, slug: str) -> Dict[str, Any]:
@@ -73,7 +73,7 @@ class RecipeMixin:
         if not slug:
             raise ValueError("Recipe slug cannot be empty")
 
-        logger.info(f"Retrieving recipe with slug: {slug}")
+        logger.info({"message": "Retrieving recipe", "slug": slug})
         return self._handle_request("GET", f"/api/recipes/{slug}")
 
     def update_recipe(self, slug: str, recipe_data: Dict[str, Any]) -> Dict[str, Any]:
@@ -91,17 +91,17 @@ class RecipeMixin:
         if not recipe_data:
             raise ValueError("Recipe data cannot be empty")
 
-        logger.info(f"Updating recipe with slug: {slug}")
+        logger.info({"message": "Updating recipe", "slug": slug})
         return self._handle_request("PUT", f"/api/recipes/{slug}", json=recipe_data)
 
-    def create_recipe(self, name: str) -> Dict[str, Any]:
+    def create_recipe(self, name: str) -> str:
         """Create a new recipe
 
         Args:
             name: The name of the new recipe
 
         Returns:
-            JSON response containing the created recipe details
+            Slug of the newly created recipe
         """
-        logger.info("Creating new recipe")
+        logger.info({"message": "Creating new recipe", "name": name})
         return self._handle_request("POST", "/api/recipes", json={"name": name})
