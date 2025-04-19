@@ -1,13 +1,11 @@
 import json
 import logging
-import os
 import traceback
 from typing import Any, Dict, List, Optional
 
-from dotenv import load_dotenv
 from fastmcp import FastMCP
 
-from mealie.mealie_client import MealieClient
+from mealie import MealieFetcher
 
 # Configure logging
 logging.basicConfig(
@@ -19,19 +17,6 @@ logger = logging.getLogger("mealie-mcp")
 
 mcp = FastMCP("mealie")
 
-# Environment variable handling with validation
-load_dotenv()
-MEALIE_BASE_URL = os.getenv("MEALIE_BASE_URL")
-MEALIE_API_KEY = os.getenv("MEALIE_API_KEY")
-
-if not MEALIE_BASE_URL:
-    logger.error("MEALIE_BASE_URL environment variable is not set")
-    raise ValueError("MEALIE_BASE_URL environment variable is required")
-
-if not MEALIE_API_KEY:
-    logger.error("MEALIE_API_KEY environment variable is not set")
-    raise ValueError("MEALIE_API_KEY environment variable is required")
-
 
 # Error response helper function
 def format_error_response(error_message: str) -> str:
@@ -41,11 +26,7 @@ def format_error_response(error_message: str) -> str:
 
 
 try:
-    logger.info(f"Initializing Mealie client with base URL: {MEALIE_BASE_URL}")
-    mealie = MealieClient(
-        base_url=MEALIE_BASE_URL,
-        api_key=MEALIE_API_KEY,
-    )
+    mealie = MealieFetcher()
 except Exception as e:
     logger.error(f"Failed to initialize Mealie client: {str(e)}")
     logger.debug(traceback.format_exc())
