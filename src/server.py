@@ -1,8 +1,10 @@
 import os
+from typing import List, Optional
+
 from dotenv import load_dotenv
-from mealie_client import MealieClient
 from mcp.server.fastmcp import FastMCP
-from typing import Optional, List
+
+from mealie_client import MealieClient
 
 mcp = FastMCP("mealie")
 

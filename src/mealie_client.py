@@ -1,5 +1,6 @@
+from typing import Any, Dict, List, Optional
+
 import httpx
-from typing import Optional, Dict, Any, Union, List
 
 
 class MealieClient:
