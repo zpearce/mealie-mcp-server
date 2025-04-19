@@ -51,3 +51,40 @@ class FoodMixin(MealieClient):
 
         logger.info(f"Retrieving foods with parameters: {params}")
         return self._handle_request("GET", "/api/foods", params=params)
+
+    def get_food(self, food_id: str) -> Dict[str, Any]:
+        """Get a specific food by ID
+
+        Args:
+            food_id: The UUID of the food to retrieve
+
+        Returns:
+            JSON response containing food details
+        """
+        logger.info(f"Retrieving food with ID: {food_id}")
+        return self._handle_request("GET", f"/api/foods/{food_id}")
+
+    def create_food(self, food_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Create a new food item
+
+        Args:
+            food_data: Dictionary containing food details such as name, description, and aliases
+
+        Returns:
+            JSON response containing the created food details
+        """
+        logger.info(f"Creating new food: {food_data.get('name', 'Unknown')}")
+        return self._handle_request("POST", "/api/foods", json=food_data)
+
+    def update_food(self, food_id: str, food_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Update an existing food item
+
+        Args:
+            food_id: The UUID of the food to update
+            food_data: Dictionary containing updated food details
+
+        Returns:
+            JSON response containing the updated food details
+        """
+        logger.info(f"Updating food with ID: {food_id}")
+        return self._handle_request("PUT", f"/api/foods/{food_id}", json=food_data)
