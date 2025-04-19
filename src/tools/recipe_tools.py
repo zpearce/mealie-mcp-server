@@ -114,3 +114,36 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 {"message": "Error traceback", "traceback": traceback.format_exc()}
             )
             return format_error_response(error_msg)
+
+    @mcp.tool()
+    def update_recipe(
+        slug: str,
+        ingredients: list[str],
+        instructions: list[str],
+    ) -> str:
+        """Replaces the ingredients and instructions of an existing recipe.
+
+        Args:
+            slug: The unique text identifier for the recipe to be updated.
+            ingredients: A list of ingredients for the recipe include quantities and units.
+            instructions: A list of instructions for preparing the recipe.
+
+        Returns:
+            str: Confirmation message or details about the updated recipe.
+        """
+        try:
+            logger.info({"message": "Updating recipe", "slug": slug})
+            recipe_json = mealie.get_recipe(slug)
+            recipe = Recipe.model_validate(recipe_json)
+            recipe.recipeIngredient = [RecipeIngredient(note=i) for i in ingredients]
+            recipe.recipeInstructions = [
+                RecipeInstruction(text=i) for i in instructions
+            ]
+            return mealie.update_recipe(slug, recipe.model_dump(exclude_none=True))
+        except Exception as e:
+            error_msg = f"Error updating recipe '{slug}': {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
