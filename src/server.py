@@ -8,9 +8,16 @@ from fastmcp import FastMCP
 from mealie import MealieFetcher
 from tools import register_all_tools
 
+# Load environment variables first
+load_dotenv()
+
+# Get log level from environment variable with INFO as default
+log_level_name = os.getenv("LOG_LEVEL", "INFO")
+log_level = getattr(logging, log_level_name.upper(), logging.INFO)
+
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
+    level=log_level,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[logging.StreamHandler(), logging.FileHandler("mealie_mcp_server.log")],
 )
@@ -18,8 +25,6 @@ logger = logging.getLogger("mealie-mcp")
 
 mcp = FastMCP("mealie")
 
-
-load_dotenv()
 MEALIE_BASE_URL = os.getenv("MEALIE_BASE_URL")
 MEALIE_API_KEY = os.getenv("MEALIE_API_KEY")
 if not MEALIE_BASE_URL or not MEALIE_API_KEY:
