@@ -97,6 +97,7 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             str: The updated recipe details reflecting all changes.
 
         Important Notes:
+            - Ensure name value is not empty
             - For best results, omit fields you don't want to change rather than providing empty values
             - For recipe ingredients, the default values are isFood=True and disableAmount=False
             - When providing empty lists (like tags or categories), use [] instead of null/None
@@ -328,7 +329,7 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 # Use Pydantic model for validation
                 try:
                     # Parse the recipe data through our Pydantic model
-                    validated_data = RecipeData(**recipe_data)
+                    validated_data = RecipeData(name=name, **recipe_data)
                     # Convert back to dict for the API call - using model_dump instead of dict
                     recipe_data_dict = validated_data.model_dump(exclude_none=True)
                     logger.debug(

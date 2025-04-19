@@ -22,12 +22,12 @@ class RecipeIngredient(BaseModel):
     unit: Optional[str] = None
     food: Optional[str] = None
     note: str
-    isFood: bool = True  # Changed from False to True
-    disableAmount: bool = False  # Changed from True to False
+    isFood: bool = False
+    disableAmount: bool = True
     display: Optional[str] = None
     title: Optional[str] = None
     originalText: Optional[str] = None
-    referenceId: Optional[str] = None
+    referenceId: str
 
 
 class RecipeInstruction(BaseModel):
@@ -50,10 +50,10 @@ class RecipeSettings(BaseModel):
 
 class RecipeData(BaseModel):
     id: Optional[str] = None
-    userId: Optional[str] = None
-    householdId: Optional[str] = None
-    groupId: Optional[str] = None
-    name: Optional[str] = None
+    userId: str
+    householdId: str
+    groupId: str
+    name: str
     slug: Optional[str] = None
     image: Optional[str] = None
     description: Optional[str] = None
