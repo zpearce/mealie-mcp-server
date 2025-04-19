@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Optional
 from dotenv import load_dotenv
 from fastmcp import FastMCP
 
-from mealie_client import MealieClient
+from mealie.mealie_client import MealieClient
 
 # Configure logging
 logging.basicConfig(

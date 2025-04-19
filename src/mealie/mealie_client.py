@@ -126,24 +126,20 @@ class MealieClient:
         Returns:
             JSON response containing food items and pagination information
         """
-        params = {}
+        from src.param_builder import ParamBuilder
 
-        if search is not None:
-            params["search"] = search
-        if order_by is not None:
-            params["orderBy"] = order_by
-        if order_by_null_position is not None:
-            params["orderByNullPosition"] = order_by_null_position
-        if order_direction is not None:
-            params["orderDirection"] = order_direction
-        if query_filter is not None:
-            params["queryFilter"] = query_filter
-        if pagination_seed is not None:
-            params["paginationSeed"] = pagination_seed
-        if page is not None:
-            params["page"] = page
-        if per_page is not None:
-            params["perPage"] = per_page
+        param_dict = {
+            "search": search,
+            "orderBy": order_by,
+            "orderByNullPosition": order_by_null_position,
+            "orderDirection": order_direction,
+            "queryFilter": query_filter,
+            "paginationSeed": pagination_seed,
+            "page": page,
+            "perPage": per_page,
+        }
+
+        params = ParamBuilder(param_dict).build()
 
         logger.info(f"Retrieving foods with parameters: {params}")
         return self._handle_request("GET", "/api/foods", params=params)
@@ -180,30 +176,23 @@ class MealieClient:
         Returns:
             JSON response containing recipe items and pagination information
         """
-        params = {}
+        from src.param_builder import ParamBuilder
 
-        if search is not None:
-            params["search"] = search
-        if order_by is not None:
-            params["orderBy"] = order_by
-        if order_by_null_position is not None:
-            params["orderByNullPosition"] = order_by_null_position
-        if order_direction is not None:
-            params["orderDirection"] = order_direction
-        if query_filter is not None:
-            params["queryFilter"] = query_filter
-        if pagination_seed is not None:
-            params["paginationSeed"] = pagination_seed
-        if page is not None:
-            params["page"] = page
-        if per_page is not None:
-            params["perPage"] = per_page
-        if categories is not None:
-            params["categories"] = ",".join(categories)
-        if tags is not None:
-            params["tags"] = ",".join(tags)
-        if tools is not None:
-            params["tools"] = ",".join(tools)
+        param_dict = {
+            "search": search,
+            "orderBy": order_by,
+            "orderByNullPosition": order_by_null_position,
+            "orderDirection": order_direction,
+            "queryFilter": query_filter,
+            "paginationSeed": pagination_seed,
+            "page": page,
+            "perPage": per_page,
+            "categories": categories,
+            "tags": tags,
+            "tools": tools,
+        }
+
+        params = ParamBuilder(param_dict).build()
 
         logger.info(f"Retrieving recipes with parameters: {params}")
         return self._handle_request("GET", "/api/recipes", params=params)
@@ -299,14 +288,15 @@ class MealieClient:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-        params = {}
+        from src.param_builder import ParamBuilder
 
-        if page is not None:
-            params["page"] = page
-        if per_page is not None:
-            params["perPage"] = per_page
-        if pagination_seed is not None:
-            params["paginationSeed"] = pagination_seed
+        param_dict = {
+            "page": page,
+            "perPage": per_page,
+            "paginationSeed": pagination_seed,
+        }
+
+        params = ParamBuilder(param_dict).build()
 
         logger.info(f"Retrieving shopping lists with parameters: {params}")
         return self._handle_request(
@@ -570,22 +560,19 @@ class MealieClient:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-        params = {}
+        from src.param_builder import ParamBuilder
 
-        if list_id is not None:
-            params["shoppingListId"] = list_id
-        if page is not None:
-            params["page"] = page
-        if per_page is not None:
-            params["perPage"] = per_page
-        if pagination_seed is not None:
-            params["paginationSeed"] = pagination_seed
-        if order_by is not None:
-            params["orderBy"] = order_by
-        if order_direction is not None:
-            params["orderDirection"] = order_direction
-        if query_filter is not None:
-            params["queryFilter"] = query_filter
+        param_dict = {
+            "shoppingListId": list_id,
+            "page": page,
+            "perPage": per_page,
+            "paginationSeed": pagination_seed,
+            "orderBy": order_by,
+            "orderDirection": order_direction,
+            "queryFilter": query_filter,
+        }
+
+        params = ParamBuilder(param_dict).build()
 
         logger.info(f"Retrieving all shopping list items with parameters: {params}")
         return self._handle_request("GET", "/api/shopping/items", params=params)
