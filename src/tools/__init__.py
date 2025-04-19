@@ -1,15 +1,12 @@
-from .food_tools import register_food_tools
 from .recipe_tools import register_recipe_tools
 
 
 def register_all_tools(mcp, mealie):
     """Register all tools with the MCP server."""
-    register_food_tools(mcp, mealie)
     register_recipe_tools(mcp, mealie)
 
 
 __all__ = [
     "register_all_tools",
-    "register_food_tools",
     "register_recipe_tools",
 ]
