@@ -85,7 +85,6 @@ class ShoppingListMixin:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-
         param_dict = {
             "page": page,
             "perPage": per_page,
@@ -153,7 +152,9 @@ class ShoppingListMixin:
             payload["foodId"] = food_id
 
         logger.info(f"Creating item '{item_name}' in shopping list {list_id}")
-        return self._handle_request("POST", "/api/shopping/items", json=payload)
+        return self._handle_request(
+            "POST", "/api/households/shopping/items", json=payload
+        )
 
     def update_shopping_list_item(
         self,
@@ -205,7 +206,7 @@ class ShoppingListMixin:
 
         logger.info(f"Updating shopping list item {item_id}")
         return self._handle_request(
-            "PUT", f"/api/shopping/items/{item_id}", json=payload
+            "PUT", f"/api/households/shopping/items/{item_id}", json=payload
         )
 
     def delete_shopping_list_item(self, item_id: str) -> Dict[str, Any]:
@@ -221,7 +222,9 @@ class ShoppingListMixin:
             raise ValueError("Shopping list item ID cannot be empty")
 
         logger.info(f"Deleting shopping list item {item_id}")
-        return self._handle_request("DELETE", f"/api/shopping/items/{item_id}")
+        return self._handle_request(
+            "DELETE", f"/api/households/shopping/items/{item_id}"
+        )
 
     def get_shopping_list_item(self, item_id: str) -> Dict[str, Any]:
         """Retrieve a specific shopping list item by ID
@@ -236,7 +239,7 @@ class ShoppingListMixin:
             raise ValueError("Shopping list item ID cannot be empty")
 
         logger.info(f"Retrieving shopping list item with ID: {item_id}")
-        return self._handle_request("GET", f"/api/shopping/items/{item_id}")
+        return self._handle_request("GET", f"/api/households/shopping/items/{item_id}")
 
     def toggle_shopping_list_item(self, item_id: str) -> Dict[str, Any]:
         """Toggle the checked status of a shopping list item
@@ -251,7 +254,9 @@ class ShoppingListMixin:
             raise ValueError("Shopping list item ID cannot be empty")
 
         logger.info(f"Toggling checked status for shopping list item {item_id}")
-        return self._handle_request("PUT", f"/api/shopping/items/{item_id}/toggle")
+        return self._handle_request(
+            "PUT", f"/api/households/shopping/items/{item_id}/toggle"
+        )
 
     def bulk_create_shopping_list_items(
         self, list_id: str, items: List[Dict[str, Any]]
@@ -292,7 +297,9 @@ class ShoppingListMixin:
             payload.append(item_payload)
 
         logger.info(f"Bulk creating {len(items)} items in shopping list {list_id}")
-        return self._handle_request("POST", "/api/shopping/items/bulk", json=payload)
+        return self._handle_request(
+            "POST", "/api/households/shopping/items/create-bulk", json=payload
+        )
 
     def bulk_update_shopping_list_items(
         self, items: List[Dict[str, Any]]
@@ -315,7 +322,7 @@ class ShoppingListMixin:
                 raise ValueError("Each item must have an 'id' field")
 
         logger.info(f"Bulk updating {len(items)} shopping list items")
-        return self._handle_request("PUT", "/api/shopping/items/bulk", json=items)
+        return self._handle_request("PUT", "/api/households/shopping/items", json=items)
 
     def bulk_delete_shopping_list_items(self, item_ids: List[str]) -> Dict[str, Any]:
         """Delete multiple shopping list items at once
@@ -330,7 +337,10 @@ class ShoppingListMixin:
             raise ValueError("Item IDs must be a non-empty list")
 
         logger.info(f"Bulk deleting {len(item_ids)} shopping list items")
-        return self._handle_request("DELETE", "/api/shopping/items/bulk", json=item_ids)
+        params = {"ids": ",".join(item_ids)}
+        return self._handle_request(
+            "DELETE", "/api/households/shopping/items", params=params
+        )
 
     def get_all_shopping_list_items(
         self,
@@ -356,7 +366,6 @@ class ShoppingListMixin:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-
         param_dict = {
             "shoppingListId": list_id,
             "page": page,
@@ -370,4 +379,6 @@ class ShoppingListMixin:
         params = format_api_params(param_dict)
 
         logger.info(f"Retrieving all shopping list items with parameters: {params}")
-        return self._handle_request("GET", "/api/shopping/items", params=params)
+        return self._handle_request(
+            "GET", "/api/households/shopping/items", params=params
+        )
