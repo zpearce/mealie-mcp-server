@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Dict, List, Optional
 
+from param_builder import ParamBuilder
+
 logger = logging.getLogger("mealie-mcp")
 
 
@@ -39,7 +41,6 @@ class RecipeMixin:
         Returns:
             JSON response containing recipe items and pagination information
         """
-        from src.param_builder import ParamBuilder
 
         param_dict = {
             "search": search,

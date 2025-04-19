@@ -2,6 +2,7 @@ import logging
 from typing import Any, Dict, Optional
 
 from mealie.client import MealieClient
+from param_builder import ParamBuilder
 
 logger = logging.getLogger("mealie-mcp")
 
@@ -34,7 +35,6 @@ class FoodMixin(MealieClient):
         Returns:
             JSON response containing food items and pagination information
         """
-        from src.param_builder import ParamBuilder
 
         param_dict = {
             "search": search,

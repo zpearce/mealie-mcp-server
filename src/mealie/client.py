@@ -1,10 +1,8 @@
 import logging
-import os
 import traceback
 from typing import Any, Dict
 
 import httpx
-from dotenv import load_dotenv
 from httpx import ConnectError, HTTPStatusError, ReadTimeout
 
 logger = logging.getLogger("mealie-mcp")
@@ -22,14 +20,7 @@ class MealieApiError(Exception):
 
 class MealieClient:
 
-    def __init__(self, base_url: str = None, api_key: str = None):
-        # Environment variable handling with validation
-        load_dotenv()
-        if not base_url:
-            base_url = os.getenv("MEALIE_BASE_URL")
-        if not api_key:
-            api_key = os.getenv("MEALIE_API_KEY")
-
+    def __init__(self, base_url: str, api_key: str):
         if not base_url:
             raise ValueError("Base URL cannot be empty")
         if not api_key:

@@ -1,6 +1,8 @@
 import logging
 from typing import Any, Dict, List, Optional
 
+from param_builder import ParamBuilder
+
 logger = logging.getLogger("mealie-mcp")
 
 
@@ -83,7 +85,6 @@ class ShoppingListMixin:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-        from src.param_builder import ParamBuilder
 
         param_dict = {
             "page": page,
@@ -355,7 +356,6 @@ class ShoppingListMixin:
         Returns:
             JSON response containing shopping list items and pagination information
         """
-        from src.param_builder import ParamBuilder
 
         param_dict = {
             "shoppingListId": list_id,
