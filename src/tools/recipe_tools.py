@@ -5,6 +5,7 @@ from typing import List, Optional
 from fastmcp import FastMCP
 
 from mealie import MealieFetcher
+from models.recipe import Recipe, RecipeIngredient, RecipeInstruction
 from utils import format_error_response
 
 logger = logging.getLogger("mealie-mcp")
@@ -76,6 +77,38 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             return mealie.get_recipe(slug)
         except Exception as e:
             error_msg = f"Error fetching recipe with slug '{slug}': {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
+
+    @mcp.tool()
+    def create_recipe(
+        name: str, ingredients: list[str], instructions: list[str]
+    ) -> str:
+        """Create a new recipe
+
+        Args:
+            name: The name of the new recipe to be created.
+            ingredients: A list of ingredients for the recipe include quantities and units.
+            instructions: A list of instructions for preparing the recipe.
+
+        Returns:
+            str: Confirmation message or details about the created recipe.
+        """
+        try:
+            logger.info({"message": "Creating recipe", "name": name})
+            slug = mealie.create_recipe(name)
+            recipe_json = mealie.get_recipe(slug)
+            recipe = Recipe.model_validate(recipe_json)
+            recipe.recipeIngredient = [RecipeIngredient(note=i) for i in ingredients]
+            recipe.recipeInstructions = [
+                RecipeInstruction(text=i) for i in instructions
+            ]
+            return mealie.update_recipe(slug, recipe.model_dump(exclude_none=True))
+        except Exception as e:
+            error_msg = f"Error creating recipe '{name}': {str(e)}"
             logger.error({"message": error_msg})
             logger.debug(
                 {"message": "Error traceback", "traceback": traceback.format_exc()}

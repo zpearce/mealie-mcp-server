@@ -56,7 +56,7 @@ class MealieClient:
             )
             raise
 
-    def _handle_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:
+    def _handle_request(self, method: str, url: str, **kwargs) -> Dict[str, Any] | str:
         """Common request handler with error handling for all API calls."""
         try:
             logger.debug(
@@ -90,7 +90,7 @@ class MealieClient:
                 logger.debug(
                     {"message": "Response content (non-JSON)", "content": response.text}
                 )
-                return {"raw_response": response.text}
+                return response.text
 
         except HTTPStatusError as e:
             status_code = e.response.status_code
