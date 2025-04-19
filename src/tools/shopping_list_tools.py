@@ -14,7 +14,7 @@ def register_shopping_list_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
     """Register all shopping list-related tools with the MCP server."""
 
     @mcp.tool()
-    def create_shopping_list(name: str, description: Optional[str] = None) -> str:
+    def create_shopping_list(name: str) -> str:
         """Create a new shopping list in your Mealie instance.
 
         Args:
@@ -27,10 +27,8 @@ def register_shopping_list_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 subsequent operations.
         """
         try:
-            logger.info(
-                f"Creating shopping list '{name}' with description: {description}"
-            )
-            return mealie.create_shopping_list(name=name, description=description)
+            logger.info(f"Creating shopping list '{name}'")
+            return mealie.create_shopping_list(name=name)
         except Exception as e:
             error_msg = f"Error creating shopping list '{name}': {str(e)}"
             logger.error(error_msg)

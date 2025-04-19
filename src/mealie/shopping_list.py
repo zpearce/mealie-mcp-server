@@ -9,14 +9,11 @@ logger = logging.getLogger("mealie-mcp")
 class ShoppingListMixin:
     """Mixin class for shopping list-related API endpoints"""
 
-    def create_shopping_list(
-        self, name: str, description: Optional[str] = None
-    ) -> Dict[str, Any]:
+    def create_shopping_list(self, name: str) -> Dict[str, Any]:
         """Create a new shopping list
 
         Args:
             name: The name of the shopping list
-            description: Optional description for the shopping list
 
         Returns:
             JSON response containing the created shopping list details
@@ -25,9 +22,6 @@ class ShoppingListMixin:
             raise ValueError("Shopping list name cannot be empty")
 
         payload = {"name": name}
-
-        if description is not None:
-            payload["description"] = description
 
         logger.info(f"Creating shopping list with name: {name}")
         return self._handle_request(
@@ -270,6 +264,78 @@ class ShoppingListMixin:
 
         Returns:
             JSON response containing the created shopping list items
+
+        Example:
+            ```json
+            [
+                {
+                    "quantity": 1,
+                    "unit": {
+                        "id": "string",
+                        "name": "string",
+                        "pluralName": "string",
+                        "description": "",
+                        "extras": {},
+                        "fraction": true,
+                        "abbreviation": "",
+                        "pluralAbbreviation": "",
+                        "useAbbreviation": false,
+                        "aliases": [],
+                        "createdAt": "2025-04-19T10:20:22.702Z",
+                        "update_at": "2025-04-19T10:20:22.702Z"
+                    },
+                    "food": {
+                        "id": "string",
+                        "name": "string",
+                        "pluralName": "string",
+                        "description": "",
+                        "extras": {},
+                        "labelId": "string",
+                        "aliases": [],
+                        "householdsWithIngredientFood": [],
+                        "label": {
+                            "name": "string",
+                            "color": "#959595",
+                            "groupId": "string",
+                            "id": "string"
+                        },
+                        "createdAt": "2025-04-19T10:20:22.702Z",
+                        "update_at": "2025-04-19T10:20:22.702Z"
+                    },
+                    "note": "",
+                    "isFood": false,
+                    "disableAmount": true,
+                    "display": "Milk",
+                    "shoppingListId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "checked": false,
+                    "position": 0,
+                    "foodId": "string",
+                    "labelId": "string",
+                    "unitId": "string",
+                    "extras": {},
+                    "recipeReferences": []
+                },
+                {
+                    "quantity": 12,
+                    "unit": {
+                        "id": "count-id",
+                        "name": "count"
+                    },
+                    "note": "Free-range preferred",
+                    "isFood": false,
+                    "display": "Eggs",
+                    "shoppingListId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "checked": false,
+                    "position": 1
+                },
+                {
+                    "display": "Bread",
+                    "shoppingListId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                    "isFood": true,
+                    "foodId": "bread-id-123"
+                }
+            ]
+            ```
         """
         if not list_id:
             raise ValueError("Shopping list ID cannot be empty")
