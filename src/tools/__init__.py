@@ -1,4 +1,5 @@
 from .food_tools import register_food_tools
+from .mealplan_tools import register_mealplan_tools
 from .recipe_tools import register_recipe_tools
 from .shopping_list_tools import register_shopping_list_tools
 
@@ -6,6 +7,7 @@ from .shopping_list_tools import register_shopping_list_tools
 def register_all_tools(mcp, mealie):
     """Register all tools with the MCP server."""
     register_food_tools(mcp, mealie)
+    register_mealplan_tools(mcp, mealie)
     register_recipe_tools(mcp, mealie)
     register_shopping_list_tools(mcp, mealie)
 
@@ -13,6 +15,7 @@ def register_all_tools(mcp, mealie):
 __all__ = [
     "register_all_tools",
     "register_food_tools",
+    "register_mealplan_tools",
     "register_recipe_tools",
     "register_shopping_list_tools",
 ]

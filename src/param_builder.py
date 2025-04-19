@@ -3,7 +3,7 @@ from typing import Any, Optional
 
 class ParamBuilder:
     def __init__(self, param_dict: Optional[dict[str, Any]] = None) -> None:
-        self.param_dict = param_dict
+        self.param_dict = param_dict if param_dict is not None else {}
 
     def add(self, key: str, value: Optional[Any]) -> None:
         if key in self.param_dict:
