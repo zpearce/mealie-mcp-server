@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from fastmcp import FastMCP
 
 from mealie import MealieFetcher
+from prompts import register_prompts
 from tools import register_all_tools
 
 # Load environment variables first
@@ -42,6 +43,7 @@ except Exception as e:
     logger.debug({"message": "Error traceback", "traceback": traceback.format_exc()})
     raise
 
+register_prompts(mcp)
 register_all_tools(mcp, mealie)
 
 if __name__ == "__main__":
