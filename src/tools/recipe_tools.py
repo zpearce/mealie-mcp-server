@@ -61,8 +61,9 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             return format_error_response(error_msg)
 
     @mcp.tool()
-    def get_recipe(slug: str) -> str:
-        """Retrieve a specific recipe by its slug identifier.
+    def get_recipe_detailed(slug: str) -> str:
+        """Retrieve a specific recipe by its slug identifier. Use this when to get full recipe
+        details for tasks like updating or displaying the recipe.
 
         Args:
             slug: The unique text identifier for the recipe, typically found in recipe URLs
@@ -75,6 +76,43 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         try:
             logger.info({"message": "Fetching recipe", "slug": slug})
             return mealie.get_recipe(slug)
+        except Exception as e:
+            error_msg = f"Error fetching recipe with slug '{slug}': {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
+
+    @mcp.tool()
+    def get_recipe_concise(slug: str) -> str:
+        """Retrieve a concise version of a specific recipe by its slug identifier. Use this when you only
+        need a summary of the recipe, such as for when mealplaning.
+
+        Args:
+            slug: The unique text identifier for the recipe, typically found in recipe URLs
+                or from get_recipes results.
+
+
+        """
+        try:
+            logger.info({"message": "Fetching recipe", "slug": slug})
+            recipe_json = mealie.get_recipe(slug)
+            recipe = Recipe.model_validate(recipe_json)
+            return recipe.model_dump(
+                include={
+                    "name",
+                    "slug",
+                    "recipeServings",
+                    "recipeYieldQuantity",
+                    "recipeYield",
+                    "totalTime",
+                    "rating",
+                      "recipeIngredient",
+                    "lastMade",
+                },
+                exclude_none=True,
+            )
         except Exception as e:
             error_msg = f"Error fetching recipe with slug '{slug}': {str(e)}"
             logger.error({"message": error_msg})
