@@ -1,8 +1,14 @@
+import logging
+import traceback
 from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
 from mealie import MealieFetcher
+from models.mealplan import MealPlanEntry
+from utils import format_error_response
+
+logger = logging.getLogger("mealie-mcp")
 
 
 def register_mealplan_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
@@ -26,37 +32,87 @@ def register_mealplan_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         Returns:
             Dict[str, Any]: JSON response containing mealplan items and pagination information
         """
-        return mealie.get_mealplans(
-            start_date=start_date,
-            end_date=end_date,
-            page=page,
-            per_page=per_page,
-        )
+        try:
+            logger.info(
+                {
+                    "message": "Fetching mealplans",
+                    "start_date": start_date,
+                    "end_date": end_date,
+                    "page": page,
+                    "per_page": per_page,
+                }
+            )
+            return mealie.get_mealplans(
+                start_date=start_date,
+                end_date=end_date,
+                page=page,
+                per_page=per_page,
+            )
+        except Exception as e:
+            error_msg = f"Error fetching mealplans: {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
 
     @mcp.tool()
     def create_mealplan(
-        date: str,
-        recipe_id: Optional[str] = None,
-        title: Optional[str] = None,
-        entry_type: str = "breakfast",
+        entry: MealPlanEntry,
     ) -> Dict[str, Any]:
         """Create a new meal plan entry.
 
         Args:
-            date: Date for the mealplan in ISO format (YYYY-MM-DD)
-            recipe_id: UUID of the recipe to add to the mealplan (optional)
-            title: Title for the mealplan entry if not using a recipe (optional)
-            entry_type: Type of mealplan entry (breakfast, lunch, dinner, etc.)
+            entry: MealPlanEntry object containing date, recipe_id, title, and entry_type
 
         Returns:
             Dict[str, Any]: JSON response containing the created mealplan entry
         """
-        return mealie.create_mealplan(
-            date=date,
-            recipe_id=recipe_id,
-            title=title,
-            entry_type=entry_type,
-        )
+        try:
+            logger.info(
+                {
+                    "message": "Creating mealplan entry",
+                    "entry": entry.model_dump(),
+                }
+            )
+            return mealie.create_mealplan(**entry.model_dump())
+        except Exception as e:
+            error_msg = f"Error creating mealplan entry: {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
+
+    @mcp.tool()
+    def create_mealplan_bulk(
+        entries: List[MealPlanEntry],
+    ) -> Dict[str, Any]:
+        """Create multiple meal plan entries in bulk.
+
+        Args:
+            entries: List of MealPlanEntry objects
+                containing date, recipe_id, title, and entry_type
+        Returns:
+            Dict[str, Any]: JSON response containing the created mealplan entries
+        """
+        try:
+            logger.info(
+                {
+                    "message": "Creating bulk mealplan entries",
+                    "entries_count": len(entries),
+                }
+            )
+            for entry in entries:
+                mealie.create_mealplan(**entry.model_dump())
+            return {"message": "Bulk mealplan entries created successfully"}
+        except Exception as e:
+            error_msg = f"Error creating bulk mealplan entries: {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
 
     @mcp.tool()
     def get_todays_mealplan() -> List[Dict[str, Any]]:
@@ -65,4 +121,13 @@ def register_mealplan_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         Returns:
             List[Dict[str, Any]]: List of today's mealplan entries
         """
-        return mealie.get_todays_mealplan()
+        try:
+            logger.info({"message": "Fetching today's mealplan"})
+            return mealie.get_todays_mealplan()
+        except Exception as e:
+            error_msg = f"Error fetching today's mealplan: {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)
