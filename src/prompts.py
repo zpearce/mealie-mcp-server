@@ -1,5 +1,3 @@
-from typing import List
-
 from fastmcp import FastMCP
 from fastmcp.prompts import AssistantMessage, Message, UserMessage
 
