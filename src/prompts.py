@@ -28,7 +28,7 @@ You have access to a Mealie recipe database with various recipes. You can search
 
 ### Meal Plan Tools
 - get_all_mealplans: View existing meal plans
-- create_mealplan: Add a recipe to a meal plan (requires date in YYYY-MM-DD format, recipe_id if available, and entry_type)
+- create_mealplan_bulk: Add multiple recipes to a meal plan at once (requires a list of entries with date in YYYY-MM-DD format, recipe_id if available, and entry_type)
 - get_todays_mealplan: View today's planned meals
 </context>
 
