@@ -104,4 +104,5 @@ class RecipeMixin:
             Slug of the newly created recipe
         """
         logger.info({"message": "Creating new recipe", "name": name})
-        return self._handle_request("POST", "/api/recipes", json={"name": name})
+        response = self._handle_request("POST", "/api/recipes", json={"name": name})
+        return response["slug"]

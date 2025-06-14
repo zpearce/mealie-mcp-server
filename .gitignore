@@ -176,3 +176,12 @@ cython_debug/
 CLAUDE.md
 .serena/
 .claude/
+
+# Test artifacts
+.coverage
+htmlcov/
+.pytest_cache/
+tests/__pycache__/
+tests/*/__pycache__/
+tests/*/*/__pycache__/
+.env.test
