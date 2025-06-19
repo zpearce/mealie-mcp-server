@@ -105,7 +105,8 @@ class RecipeMixin:
         """
         logger.info({"message": "Creating new recipe", "name": name})
         response = self._handle_request("POST", "/api/recipes", json={"name": name})
-        return response["slug"]
+        # The API returns just the slug as a string, not a JSON object
+        return response
 
     def import_recipe_from_url(self, url: str) -> Dict[str, Any]:
         """Import a recipe from a URL using Mealie's built-in scraper
