@@ -185,3 +185,30 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 {"message": "Error traceback", "traceback": traceback.format_exc()}
             )
             return format_error_response(error_msg)
+
+    @mcp.tool()
+    def import_recipe_from_url(url: str) -> str:
+        """Import a recipe from a URL using Mealie's built-in scraper.
+
+        Args:
+            url: The URL of the recipe to import.
+
+        Returns:
+            str: JSON response containing the imported recipe details.
+        """
+        try:
+            logger.info({"message": "Importing recipe from URL", "url": url})
+
+            if not url:
+                return {"success": False, "error": "URL cannot be empty"}
+            if not url.startswith(('http://', 'https://')):
+                return {"success": False, "error": "Invalid URL format"}
+
+            return mealie.import_recipe_from_url(url)
+        except Exception as e:
+            error_msg = f"Error importing recipe from URL '{url}': {str(e)}"
+            logger.error({"message": error_msg})
+            logger.debug(
+                {"message": "Error traceback", "traceback": traceback.format_exc()}
+            )
+            return format_error_response(error_msg)

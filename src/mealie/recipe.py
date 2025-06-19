@@ -104,4 +104,27 @@ class RecipeMixin:
             Slug of the newly created recipe
         """
         logger.info({"message": "Creating new recipe", "name": name})
-        return self._handle_request("POST", "/api/recipes", json={"name": name})
+        response = self._handle_request("POST", "/api/recipes", json={"name": name})
+        return response["slug"]
+
+    def import_recipe_from_url(self, url: str) -> Dict[str, Any]:
+        """Import a recipe from a URL using Mealie's built-in scraper
+
+        Args:
+            url: The URL of the recipe to import
+
+        Returns:
+            JSON response containing the imported recipe details
+        """
+        if not url:
+            raise ValueError("URL cannot be empty")
+
+        url = url.strip()
+
+        if not url.startswith(('http://', 'https://')):
+            raise ValueError("Invalid URL format - must start with http:// or https://")
+
+        logger.info({"message": "Importing recipe from URL", "url": url})
+        slug = self._handle_request("POST", "/api/recipes/create/url", json={"url": url})
+
+        return self.get_recipe(slug)

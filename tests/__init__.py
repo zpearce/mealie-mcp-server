@@ -1,0 +1,1 @@
+# Test package for mealie-mcp-server
