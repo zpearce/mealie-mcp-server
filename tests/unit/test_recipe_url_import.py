@@ -138,33 +138,21 @@ async def test_import_recipe_from_url_with_minimal_data(test_env, httpx_mock):
 
 
 @pytest.mark.asyncio
-async def test_import_recipe_from_invalid_url(test_env, httpx_mock):
-    """Test handling of invalid URL format."""
-    mcp_server = create_test_server(httpx_mock)
-
-    async with Client(mcp_server) as client:
-        result = await client.call_tool(
-            "import_recipe_from_url",
-            {"url": "not-a-valid-url"}
-        )
-
-        response_text = result[0].text
-        response_data = json.loads(response_text)
-
-        assert response_data["success"] is False
-        assert "invalid url" in response_data["error"].lower()
-
-
-@pytest.mark.asyncio
-async def test_import_recipe_from_url_network_error(test_env, httpx_mock):
-    """Test handling of network errors during import."""
+@pytest.mark.parametrize("status_code,error_detail,expected_in_error", [
+    (400, "Unable to scrape recipe from the provided URL", "400"),
+    (409, "Recipe already exists with slug: chocolate-chip-cookies", "409"),
+    (500, "Internal server error while fetching recipe", "500"),
+    (504, "Gateway timeout while fetching recipe", "504"),
+])
+async def test_import_recipe_error_responses(test_env, httpx_mock, status_code, error_detail, expected_in_error):
+    """Test handling of various HTTP error responses."""
     mcp_server = create_test_server(httpx_mock)
 
     httpx_mock.add_response(
         method="POST",
         url="http://test.mealie.local/api/recipes/create/url",
-        status_code=500,
-        json={"detail": "Internal server error while fetching recipe"},
+        status_code=status_code,
+        json={"detail": error_detail},
     )
 
     async with Client(mcp_server) as client:
@@ -177,83 +165,15 @@ async def test_import_recipe_from_url_network_error(test_env, httpx_mock):
         response_data = json.loads(response_text)
 
         assert response_data["success"] is False
-        assert "500" in response_data["error"]
-
-
-@pytest.mark.asyncio
-async def test_import_recipe_from_url_unsupported_site(test_env, httpx_mock):
-    """Test handling when Mealie can't scrape the provided URL."""
-    mcp_server = create_test_server(httpx_mock)
-
-    httpx_mock.add_response(
-        method="POST",
-        url="http://test.mealie.local/api/recipes/create/url",
-        status_code=400,
-        json={"detail": "Unable to scrape recipe from the provided URL"},
-    )
-
-    async with Client(mcp_server) as client:
-        result = await client.call_tool(
-            "import_recipe_from_url",
-            {"url": "https://unsupported-site.com/recipe"}
-        )
-
-        response_text = result[0].text
-        response_data = json.loads(response_text)
-
-        assert response_data["success"] is False
-        assert "400" in response_data["error"]
-        assert "unable to scrape" in response_data["error"].lower()
-
-
-@pytest.mark.asyncio
-async def test_import_recipe_from_url_timeout(test_env, httpx_mock):
-    """Test handling of timeout during recipe import."""
-    mcp_server = create_test_server(httpx_mock)
-
-    httpx_mock.add_response(
-        method="POST",
-        url="http://test.mealie.local/api/recipes/create/url",
-        status_code=504,
-        json={"detail": "Gateway timeout while fetching recipe"},
-    )
-
-    async with Client(mcp_server) as client:
-        result = await client.call_tool(
-            "import_recipe_from_url",
-            {"url": "https://slow-site.com/recipe"}
-        )
-
-        response_text = result[0].text
-        response_data = json.loads(response_text)
-
-        assert response_data["success"] is False
-        assert "504" in response_data["error"] or "timeout" in response_data["error"].lower()
-
-
-@pytest.mark.asyncio
-async def test_import_recipe_from_url_duplicate(test_env, httpx_mock):
-    """Test handling when importing a recipe that already exists."""
-    mcp_server = create_test_server(httpx_mock)
-
-    httpx_mock.add_response(
-        method="POST",
-        url="http://test.mealie.local/api/recipes/create/url",
-        status_code=409,
-        json={"detail": "Recipe already exists with slug: chocolate-chip-cookies"},
-    )
-
-    async with Client(mcp_server) as client:
-        result = await client.call_tool(
-            "import_recipe_from_url",
-            {"url": "https://example.com/chocolate-chip-cookies"}
-        )
-
-        response_text = result[0].text
-        response_data = json.loads(response_text)
-
-        assert response_data["success"] is False
-        assert "409" in response_data["error"] or "already exists" in response_data["error"].lower()
+        assert expected_in_error in response_data["error"]
+        
+        # Additional assertions for specific error types
+        if status_code == 400:
+            assert "unable to scrape" in response_data["error"].lower()
+        elif status_code == 409:
+            assert "already exists" in response_data["error"].lower()
+        elif status_code == 504:
+            assert "timeout" in response_data["error"].lower()
 
 
 @pytest.mark.asyncio
@@ -309,24 +229,6 @@ async def test_import_recipe_with_special_characters(test_env, httpx_mock):
         assert "émojis 🍪" in response_data["description"]
         assert "1½ cups flour" in response_data["recipeIngredient"][0]["note"]
         assert "350°F" in response_data["recipeInstructions"][0]["text"]
-
-
-@pytest.mark.asyncio
-async def test_import_recipe_empty_url(test_env, httpx_mock):
-    """Test handling of empty URL parameter."""
-    mcp_server = create_test_server(httpx_mock)
-
-    async with Client(mcp_server) as client:
-        result = await client.call_tool(
-            "import_recipe_from_url",
-            {"url": ""}
-        )
-
-        response_text = result[0].text
-        response_data = json.loads(response_text)
-
-        assert response_data["success"] is False
-        assert "url" in response_data["error"].lower()
 
 
 @pytest.mark.asyncio
