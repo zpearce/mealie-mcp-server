@@ -119,6 +119,39 @@ class TestRecipeUpdateIntegration:
         assert updated_recipe["nutrition"]["proteinContent"] == "25"
 
     @pytest.mark.integration
+    def test_update_recipe_name(self, mealie_api_client):
+        """Test updating recipe name - this should expose the bug where name updates don't work."""
+        recipe_slug = mealie_api_client.create_recipe("Original Recipe Name")
+
+        recipe = mealie_api_client.get_recipe(recipe_slug)
+        original_slug = recipe["slug"]
+
+        # Update the recipe name
+        recipe.update({
+            "name": "Updated Recipe Name",
+            "recipeIngredient": [{"note": "test ingredient"}],
+            "recipeInstructions": [{"text": "test instruction"}]
+        })
+
+        updated_recipe = mealie_api_client.update_recipe(recipe_slug, recipe)
+
+        # Check if the name was actually updated
+        assert updated_recipe["name"] == "Updated Recipe Name", "Recipe name was not updated"
+
+        # The slug might or might not change depending on Mealie's behavior
+        # Let's check if we can still fetch the recipe by the original slug
+        try:
+            recipe_by_old_slug = mealie_api_client.get_recipe(original_slug)
+            # If we can fetch it, check if the name is updated
+            assert recipe_by_old_slug["name"] == "Updated Recipe Name"
+        except Exception:
+            # If we can't fetch by old slug, try the new slug
+            new_slug = updated_recipe["slug"]
+            assert new_slug != original_slug, "Slug should have changed when name was updated"
+            recipe_by_new_slug = mealie_api_client.get_recipe(new_slug)
+            assert recipe_by_new_slug["name"] == "Updated Recipe Name"
+
+    @pytest.mark.integration
     def test_update_nonexistent_recipe(self, mealie_api_client):
         """Test error handling when updating non-existent recipe."""
         with pytest.raises(Exception) as exc_info:

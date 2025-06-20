@@ -158,6 +158,7 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         slug: str,
         ingredients: list[str],
         instructions: list[str],
+        name: Optional[str] = None,
         tags: Optional[List[str]] = None,
         categories: Optional[List[str]] = None,
         description: Optional[str] = None,
@@ -178,6 +179,7 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             slug: The unique text identifier for the recipe to be updated.
             ingredients: A list of ingredients for the recipe include quantities and units.
             instructions: A list of instructions for preparing the recipe.
+            name: New name for the recipe (optional).
             tags: List of tag slugs for categorizing the recipe (e.g., ["ww-points-5", "family-favorite"]).
             categories: List of category slugs (e.g., ["dinner", "italian"]).
             description: Recipe description or overview.
@@ -205,6 +207,8 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
                 RecipeInstruction(text=i) for i in instructions
             ]
 
+            if name is not None:
+                recipe.name = name
             if tags is not None:
                 recipe.tags = tags
             if categories is not None:

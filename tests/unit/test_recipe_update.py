@@ -198,6 +198,48 @@ async def test_update_recipe_optional_fields(field_name, field_value, api_field,
 
 
 @pytest.mark.asyncio
+async def test_update_recipe_with_name(test_env, httpx_mock):
+    """Test that the update_recipe tool supports updating the recipe name."""
+    from tests.conftest import create_test_server
+
+    mcp_server = create_test_server(httpx_mock)
+
+    initial_recipe = get_minimal_recipe()
+    initial_recipe["name"] = "Original Name"
+
+    httpx_mock.add_response(
+        method="GET",
+        url="http://test.mealie.local/api/recipes/test-recipe",
+        json=initial_recipe
+    )
+
+    expected_update = initial_recipe.copy()
+    expected_update["name"] = "New Name"
+    expected_update["recipeIngredient"] = [{"note": "ingredient"}]
+    expected_update["recipeInstructions"] = [{"text": "instruction"}]
+
+    httpx_mock.add_response(
+        method="PUT",
+        url="http://test.mealie.local/api/recipes/test-recipe",
+        json=expected_update
+    )
+
+    async with Client(mcp_server) as client:
+        result = await client.call_tool(
+            "update_recipe",
+            {
+                "slug": "test-recipe",
+                "ingredients": ["ingredient"],
+                "instructions": ["instruction"],
+                "name": "New Name"
+            }
+        )
+
+        response_data = json.loads(result[0].text)
+        assert response_data["name"] == "New Name"
+
+
+@pytest.mark.asyncio
 async def test_update_recipe_preserves_all_fields(test_env, httpx_mock):
     """Test that all recipe fields are preserved during update - comprehensive test"""
     from tests.conftest import create_test_server
