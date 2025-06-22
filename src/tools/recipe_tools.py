@@ -1,6 +1,6 @@
 import logging
 import traceback
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastmcp import FastMCP
 
@@ -158,13 +158,41 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
         slug: str,
         ingredients: list[str],
         instructions: list[str],
+        name: Optional[str] = None,
+        tags: Optional[List[str]] = None,
+        categories: Optional[List[str]] = None,
+        description: Optional[str] = None,
+        recipe_servings: Optional[float] = None,
+        recipe_yield: Optional[str] = None,
+        prep_time: Optional[str] = None,
+        cook_time: Optional[str] = None,
+        total_time: Optional[str] = None,
+        extras: Optional[Dict[str, Any]] = None,
+        nutrition: Optional[Dict[str, str]] = None,
+        tools: Optional[List[str]] = None,
+        settings: Optional[Dict[str, bool]] = None,
+        org_url: Optional[str] = None,
     ) -> str:
-        """Replaces the ingredients and instructions of an existing recipe.
+        """Updates an existing recipe with comprehensive field support.
 
         Args:
             slug: The unique text identifier for the recipe to be updated.
             ingredients: A list of ingredients for the recipe include quantities and units.
             instructions: A list of instructions for preparing the recipe.
+            name: New name for the recipe (optional).
+            tags: List of tag slugs for categorizing the recipe (e.g., ["ww-points-5", "family-favorite"]).
+            categories: List of category slugs (e.g., ["dinner", "italian"]).
+            description: Recipe description or overview.
+            recipe_servings: Number of servings the recipe makes (as float).
+            recipe_yield: Text description of yield (e.g., "6 servings").
+            prep_time: Preparation time in minutes (as string).
+            cook_time: Cooking time in minutes (as string).
+            total_time: Total time in minutes (as string).
+            extras: Custom metadata dictionary for tracking (e.g., {"last_cooked": "2024-01-15", "ww_points": 7}).
+            nutrition: Nutrition information dictionary (calories, proteinContent, etc.).
+            tools: List of tool slugs required for the recipe.
+            settings: Recipe display settings (public, showNutrition, etc.).
+            org_url: Original source URL of the recipe.
 
         Returns:
             str: Confirmation message or details about the updated recipe.
@@ -173,10 +201,43 @@ def register_recipe_tools(mcp: FastMCP, mealie: MealieFetcher) -> None:
             logger.info({"message": "Updating recipe", "slug": slug})
             recipe_json = mealie.get_recipe(slug)
             recipe = Recipe.model_validate(recipe_json)
+
             recipe.recipeIngredient = [RecipeIngredient(note=i) for i in ingredients]
             recipe.recipeInstructions = [
                 RecipeInstruction(text=i) for i in instructions
             ]
+
+            if name is not None:
+                recipe.name = name
+            if tags is not None:
+                recipe.tags = tags
+            if categories is not None:
+                recipe.recipeCategory = categories
+            if description is not None:
+                recipe.description = description
+            if recipe_servings is not None:
+                recipe.recipeServings = recipe_servings
+            if recipe_yield is not None:
+                recipe.recipeYield = recipe_yield
+            if prep_time is not None:
+                recipe.prepTime = prep_time
+            if cook_time is not None:
+                recipe.cookTime = cook_time
+            if total_time is not None:
+                recipe.totalTime = total_time
+            if extras is not None:
+                recipe.extras = extras
+            if nutrition is not None:
+                from models.recipe import RecipeNutrition
+                recipe.nutrition = RecipeNutrition(**nutrition)
+            if tools is not None:
+                recipe.tools = tools
+            if settings is not None:
+                from models.recipe import RecipeSettings
+                recipe.settings = RecipeSettings(**settings)
+            if org_url is not None:
+                recipe.orgURL = org_url
+
             return mealie.update_recipe(slug, recipe.model_dump(exclude_none=True))
         except Exception as e:
             error_msg = f"Error updating recipe '{slug}': {str(e)}"
